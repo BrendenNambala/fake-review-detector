@@ -2,6 +2,7 @@
 Fake Review Detector - web version (Streamlit), modern styling.
 """
 import re
+import datetime
 import numpy as np
 import pandas as pd
 import joblib
@@ -9,6 +10,9 @@ import streamlit as st
 from scipy.sparse import hstack, csr_matrix
 
 st.set_page_config(page_title="Fake Review Detector", page_icon="🔍", layout="centered")
+
+if "history" not in st.session_state:
+    st.session_state.history = []
 
 st.markdown("""
 <style>
@@ -103,7 +107,7 @@ except Exception as e:
     st.error("Could not load the model files. Make sure demo_model.pkl, demo_vectorizer.pkl "
              "and demo_scaler.pkl sit next to app.py.\n\n" + str(e))
 
-tab1, tab2, tab3 = st.tabs(["🔎  Detector", "📂  Batch scan", "ℹ️  About"])
+tab1, tab2, tab4, tab3 = st.tabs(["🔎  Detector", "📂  Batch scan", "🕘  History", "ℹ️  About"])
 
 with tab1:
     st.markdown("#### Check a single review")
@@ -142,6 +146,26 @@ with tab1:
                 st.markdown(f'<div class="chips">{chips}</div>', unsafe_allow_html=True)
             else:
                 st.info("No known words from this review appeared in the model's vocabulary.")
+            st.session_state.history.insert(0, {
+                "Time": datetime.datetime.now().strftime("%H:%M:%S"),
+                "Review": text[:60] + ("…" if len(text) > 60 else ""),
+                "Verdict": "LIKELY FAKE" if prob >= 0.5 else "LIKELY GENUINE",
+                "Fake %": f"{prob:.0%}",
+            })
+
+with tab4:
+    st.markdown("#### History")
+    st.caption("Reviews you have analysed in this session. This resets when you refresh or close the page.")
+    if st.session_state.history:
+        a, b = st.columns([3, 1])
+        nfake = sum(1 for h in st.session_state.history if h["Verdict"] == "LIKELY FAKE")
+        a.markdown(f"**{len(st.session_state.history)} analysed** — {nfake} flagged as fake.")
+        if b.button("Clear history", use_container_width=True):
+            st.session_state.history = []
+            st.rerun()
+        st.dataframe(pd.DataFrame(st.session_state.history), use_container_width=True, hide_index=True)
+    else:
+        st.info("No reviews analysed yet — try the Detector tab, and they'll appear here.")
 
 with tab2:
     st.markdown("#### Scan many reviews at once")
