@@ -1,0 +1,9 @@
+feature_set,model,accuracy,precision,recall,f1
+TF-IDF only,Logistic Regression,0.739,0.583,0.5,0.532
+TF-IDF only,Linear SVM,0.704,0.525,0.471,0.491
+TF-IDF only,Random Forest,0.704,0.5,0.246,0.32
+TF-IDF only,Naive Bayes,0.678,0.3,0.057,0.094
+TF-IDF + features,Logistic Regression,0.809,0.65,0.829,0.727
+TF-IDF + features,Linear SVM,0.73,0.565,0.607,0.58
+TF-IDF + features,Random Forest,0.687,0.42,0.225,0.285
+TF-IDF + features,Naive Bayes,0.678,0.2,0.029,0.05

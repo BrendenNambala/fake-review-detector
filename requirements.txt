@@ -1,0 +1,7 @@
+streamlit
+pandas
+numpy
+scipy
+joblib
+vaderSentiment
+scikit-learn==1.8.0
